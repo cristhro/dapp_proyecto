@@ -4,6 +4,11 @@ Diagramas de Casos de Uso
 
 ![diagrama](m9_project.jpg)
 
+Contratos desplegados en la Tesnet de Sepolia mediante Dashboard de Truffle
+
+Contrato de Gestion de Proyectos
+https://sepolia.etherscan.io/tx/
+
 # Grupo 15 - Sprint 2
 
   
