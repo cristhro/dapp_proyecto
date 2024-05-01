@@ -1,7 +1,7 @@
 import React from "react";
 
 
-export const UserInformation = ({ user }) => {
+export const UserInformation = ({ user, account }) => {
     return (
         <div className="User-information">
             <h2>User Information</h2>
@@ -13,8 +13,8 @@ export const UserInformation = ({ user }) => {
             {/* User information */}
             <div className="User-information-text">
                 <p><b>User Name:</b> {user.name}</p>
-                {/* <p><b>Active: </b>{user.isActive ? "The user is still active!! 🤩 🤩" : "The user is not longer active 😭 😭"}</p> */}
                 <p><b>User Type:</b> {parseTipoUsuario(user.tipoUsuario)}</p> 
+                <p><b>Amount: </b>12 ETH</p>
             </div>
         </div>
     );

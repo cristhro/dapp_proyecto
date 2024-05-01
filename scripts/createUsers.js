@@ -31,7 +31,7 @@ module.exports = async function (callback) {
     address: '0x523Ed327544A48615f89e35A19EE149be1A95CDd',
     name: 'company',
     email: 'company@test.com',
-    tipoUsuario: 3, // 1 = student, 2 = company, 3 = instructor, 4 = admin
+    tipoUsuario: 2, // 1 = student, 2 = company, 3 = instructor, 4 = admin
     imageURI: 'https://gravatar.com/avatar/b6ffbeafcbfe8bf535e1fbb159a51f4a?s=400&d=identicon&r=x'
   }
 

@@ -10,7 +10,7 @@ const AnimatedLabel = ({ text }) => {
         </label>
     );
 };
-export const RegisterDonation = ({ onRegisterDonation }) => {
+export const AssignAmountToProject = ({ onRegisterDonation, project }) => {
     const [value, setValue] = useState(0);
 
     const onFormSubmit = e => {
@@ -22,14 +22,14 @@ export const RegisterDonation = ({ onRegisterDonation }) => {
     return (
         <div className="Register-form">
             <form onSubmit={onFormSubmit}>
-                <h2>Do Donation</h2>
+                <h2>Asignar fondos al proyecto {project.name}</h2>
                 <div className="wave-group">
-                    <input className="input" type="number" placeholder="Insert Donation" value={value} onChange={(e) => setValue(e.target.value)}></input>
+                    <input className="input" type="number" placeholder="Insert cantidad" value={value} onChange={(e) => setValue(e.target.value)}></input>
                     <span className="bar"></span>
-                    <AnimatedLabel text="Donation (ETH)" />
+                    <AnimatedLabel text="Cantidad (ETH)" />
                 </div>
                 <br></br>
-                <button disabled={value == 0} type="submit" >Registrar donación</button>
+                <button disabled={value == 0} type="submit" >Asignar fondos</button>
             </form>
         </div>
     );

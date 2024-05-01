@@ -20,7 +20,7 @@ export const RegisterUser = ({ onRegisterUser }) => {
     };
 
     return (
-        <div className="Register-user">
+        <div className="Register-form">
             <form onSubmit={onFormSubmit}>
                 <h2>User Registration</h2>
                 <div className="wave-group">
