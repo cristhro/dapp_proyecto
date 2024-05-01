@@ -1,6 +1,8 @@
 # Grupo 15 - Proyecto Final
 
+Diagramas de Casos de Uso
 
+![diagrama](m9_project.jpg)
 
 # Grupo 15 - Sprint 2
 
@@ -18,17 +20,17 @@ https://sepolia.etherscan.io/tx/0x0c68847be9251b0295594d9f4407e12b6b77a200e648c4
 
 ![sepolia1](sepolia1.png)
 
-![sepolia1](sepolia2.png)
+![sepolia2](sepolia2.png)
 
-![sepolia1](sepolia3.png)
+![sepolia3](sepolia3.png)
 
-![sepolia1](sepolia4.png)
+![sepolia4](sepolia4.png)
 
-![sepolia1](sepolia5.png)
+![sepolia5](sepolia5.png)
 
-![sepolia1](sepolia6.png)
+![sepolia6](sepolia6.png)
 
-![sepolia1](sepolia7.png)
+![sepolia7](sepolia7.png)
 
-![sepolia1](sepolia8.png)
+![sepolia8](sepolia8.png)
 
