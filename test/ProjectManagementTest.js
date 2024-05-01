@@ -1,7 +1,7 @@
 const ProjectManagement = artifacts.require("./ProjectManagement");
 
 contract("ProjectManagement", (accounts) => {
-    const [admin, company, student1, student2, student3] = accounts;
+    const [admin, company, student1, student2, student3, student4] = accounts;
 
     it("should allow a company to create a project", async () => {
         const instance = await ProjectManagement.deployed();
@@ -28,6 +28,31 @@ contract("ProjectManagement", (accounts) => {
        
         const project = await instance.getProject(0);
         assert.equal(project.assignedTo.length, 3, "There should be three students assigned to the project");
+    });
+
+    it("should allow a student to be assigned to and then removed from a project", async () => {
+        const instance = await ProjectManagement.deployed();
+        
+        await instance.setUserRole(student4, 2, {from: admin});   // Aquí, '2' corresponde a 'Role.Student'
+        
+        // Asignar estudiante al proyecto
+        await instance.assignStudentToProject(0, student4, {from: company});
+        
+        // Verificar que el estudiante está asignado al proyecto
+        let assignedProjects = await instance.getProjectsAssignedToStudent(student4);
+        assert.equal(assignedProjects.length, 1, "Student should be assigned to one project");
+        assert.equal(assignedProjects[0].toNumber(), 0, "The student should be assigned to Test Project");
+
+        // Remover estudiante del proyecto
+        await instance.removeStudentFromProject(0, student4, {from: company});
+        
+        // Verificar que el estudiante ha sido removido del proyecto
+        assignedProjects = await instance.getProjectsAssignedToStudent(student4);
+        assert.equal(assignedProjects.length, 0, "Student4 should no longer be assigned to any projects");
+
+        // Obtener detalles del proyecto para asegurar que 3 estudiantes están asignados
+        const projectDetails = await instance.getProject(0);
+        assert.equal(projectDetails.assignedTo.length, 3, "3 students should be assigned to the project after removal");
     });
 
     it("should distribute funds when a project is completed", async () => {
@@ -77,7 +102,7 @@ contract("ProjectManagement", (accounts) => {
         assert(finalBalance3 > initialBalance3, "Student 3 did not receive funds correctly.");
 
 
-
+       
         // const balance = await web3.eth.getBalance(student1);
         // assert(balance > web3.utils.toWei("0.99", "ether"), "Student should receive their share of the funds");
         

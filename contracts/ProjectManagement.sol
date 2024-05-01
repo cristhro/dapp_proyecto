@@ -22,6 +22,7 @@ contract ProjectManagement {
     uint public nextProjectId;
     mapping(address => Role) public roles;
     mapping(uint => address) public projectOwners;
+    mapping(address => uint[]) public studentProjects;
 
     event FundsAssigned(uint projectId, uint amount);
     event FundsDistributed(uint projectId, uint amount, address student);
@@ -73,21 +74,72 @@ contract ProjectManagement {
 
         Project storage project = projects[_projectId];
         project.assignedTo.push(_student);
+
+        studentProjects[_student].push(_projectId);
     }
 
-     function removeStudentFromProject(uint _projectId, address _student) public {
-        require(roles[msg.sender] == Role.Company, "Only companies can remove students");
-        require(projectOwners[_projectId] == msg.sender, "Only project owner can remove students");
+    //  function removeStudentFromProjectOld(uint _projectId, address _student) public {
+    //     require(roles[msg.sender] == Role.Company, "Only companies can remove students");
+    //     require(projectOwners[_projectId] == msg.sender, "Only project owner can remove students");
 
-        Project storage project = projects[_projectId];
-        uint i = 0;
-        while (i < project.assignedTo.length && project.assignedTo[i] != _student) {
-            i++;
+    //     Project storage project = projects[_projectId];
+    //     uint i = 0;
+    //     while (i < project.assignedTo.length && project.assignedTo[i] != _student) {
+    //         i++;
+    //     }
+    //     if (i < project.assignedTo.length) { // Student found
+    //         project.assignedTo[i] = project.assignedTo[project.assignedTo.length - 1]; // Move the last element into the deleted spot
+    //         project.assignedTo.pop(); // Remove the last element
+    //     }
+    // }
+
+    // Función para eliminar un estudiante de un proyecto
+    function removeStudentFromProject(uint projectId, address student) public {
+
+        require(roles[msg.sender] == Role.Company, "Only companies can remove students");
+        require(projectOwners[projectId] == msg.sender, "Only project owner can remove students");
+
+        // Primero, actualizamos la lista del proyecto
+        uint studentIndex = findStudentIndex(projectId, student);
+        require(studentIndex < projects[projectId].assignedTo.length, "Student not found in project");
+        
+        // Eliminar estudiante del proyecto
+        projects[projectId].assignedTo[studentIndex] = projects[projectId].assignedTo[projects[projectId].assignedTo.length - 1];
+        projects[projectId].assignedTo.pop();
+
+        // Segundo, actualizamos el mapeo del estudiante
+        uint projectIndex = findProjectIndex(student, projectId);
+        require(projectIndex < studentProjects[student].length, "Project not found for student");
+        
+        // Eliminar proyecto del estudiante
+        studentProjects[student][projectIndex] = studentProjects[student][studentProjects[student].length - 1];
+        studentProjects[student].pop();
+    }
+
+
+    // Helper para encontrar el índice de un estudiante en un proyecto
+    function findStudentIndex(uint projectId, address student) private view returns (uint) {
+        for (uint i = 0; i < projects[projectId].assignedTo.length; i++) {
+            if (projects[projectId].assignedTo[i] == student) {
+                return i;
+            }
         }
-        if (i < project.assignedTo.length) { // Student found
-            project.assignedTo[i] = project.assignedTo[project.assignedTo.length - 1]; // Move the last element into the deleted spot
-            project.assignedTo.pop(); // Remove the last element
+        revert("Student not found");
+    }
+
+    // Helper para encontrar el índice de un proyecto en la lista de un estudiante
+    function findProjectIndex(address student, uint projectId) private view returns (uint) {
+        for (uint i = 0; i < studentProjects[student].length; i++) {
+            if (studentProjects[student][i] == projectId) {
+                return i;
+            }
         }
+        revert("Project not found");
+    }
+
+    // Función para obtener los proyectos asignados a un estudiante
+    function getProjectsAssignedToStudent(address student) public view returns (uint[] memory) {
+        return studentProjects[student];
     }
 
     function isStudentAssignedToProject(uint _projectId, address _student) internal view returns (bool) {
