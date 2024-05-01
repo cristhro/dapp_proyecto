@@ -59,16 +59,38 @@ contract("ProjectManagement", (accounts) => {
         const instance = await ProjectManagement.deployed();
         //await instance.assignFundsToProject(0, web3.utils.toWei("3", "ether"), {from: admin});
 
+        // Asignar fondos al proyecto
+        const assignAmount = web3.utils.toWei("9", "ether");
 
-        await instance.assignFundsToProject(0, web3.utils.toWei("9", "ether"), {
+         // Fondos antes de asignar
+         const initialContractBalance = await web3.eth.getBalance(instance.address);
+         console.log(`Contract balance before assignment: ${web3.utils.fromWei(initialContractBalance, 'ether')} ETH`);
+
+
+        await instance.assignFundsToProject(0, assignAmount, {
             from: admin,
-            value: web3.utils.toWei("9", "ether")
+            value: assignAmount
         });
 
-        
-        //pruebas anteriores dejaron el proyecto como completado y no pasaba la distribucion de fondos se
-        //agrega manualmente el estatus Active antes para asegurar (solo para pruebas)
-        //await instance.changeProjectStatus(0, "Active", {from: company});
+
+         // Verificar fondos asignados al proyecto
+         const project = await instance.getProject(0);
+         assert.equal(project.funds.toString(), assignAmount, "The assigned funds should match the input amount");
+ 
+         // Fondos después de asignar
+         const finalContractBalance = await web3.eth.getBalance(instance.address);
+         console.log(`Contract balance after assignment: ${web3.utils.fromWei(finalContractBalance, 'ether')} ETH`);
+
+
+         //si separamos agregar fondos al contrato y asignar fondos al proyecto
+        //  // Verificar que los fondos del contrato aún reflejan el depósito inicial menos los fondos asignados
+        // assert.equal(
+        //     finalContractBalance,
+        //     BigInt(initialContractBalance) + BigInt(depositAmount) - BigInt(assignAmount),
+        //     "Final contract balance should reflect the assigned funds"
+        // );
+
+            
 
         // Get initial balances of students
         const initialBalance1 = await web3.eth.getBalance(student1);
