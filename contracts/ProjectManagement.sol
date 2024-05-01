@@ -45,12 +45,24 @@ contract ProjectManagement {
         nextProjectId++;
     }
 
-    function assignFundsToProject(uint _projectId, uint _amount) public {
-        require(roles[msg.sender] == Role.Admin, "Only admin can assign funds");
+    // function assignFundsToProjectOld(uint _projectId, uint _amount) public {
+    //     require(roles[msg.sender] == Role.Admin, "Only admin can assign funds");
+    //     require(_amount > 0, "Amount must be greater than 0");
+    //     Project storage project = projects[_projectId];
+    //     project.funds += _amount;
+    //     emit FundsAssigned(_projectId, _amount);
+    // }
+
+    // Hace que la función sea payable para aceptar fondos de Ether
+    function assignFundsToProject(uint _projectId, uint _amount) public payable {
+        require(roles[msg.sender] == Role.Admin, "Only admin can assign funds to projects");
         require(_amount > 0, "Amount must be greater than 0");
+        require(msg.value == _amount, "Transaction value must match the amount to assign");  // Asegura que el Ether enviado coincida con el argumento _amount
+        require(_projectId < projects.length, "Project does not exist");  // Verifica que el proyecto exista
+
         Project storage project = projects[_projectId];
-        project.funds += _amount;
-        emit FundsAssigned(_projectId, _amount);
+        project.funds += msg.value;  // Añade el Ether enviado directamente a los fondos del proyecto
+         emit FundsAssigned(_projectId, _amount);
     }
 
     function assignStudentToProject(uint _projectId, address _student) public {
@@ -109,13 +121,18 @@ contract ProjectManagement {
     }
 
     function completeAndDistributeFunds(uint _projectId) public {
-        require(roles[msg.sender] == Role.Company, "Only companies can distribute funds");
-        require(projectOwners[_projectId] == msg.sender, "Only project owner can distribute funds");
+        // require(roles[msg.sender] == Role.Company, "Only companies can distribute funds");
+        // require(projectOwners[_projectId] == msg.sender, "Only project owner can distribute funds");
         Project storage project = projects[_projectId];
-        //require(keccak256(bytes(project.status)) == keccak256(bytes("Active")), "Project must be Active to complete");
+        require(keccak256(bytes(project.status)) == keccak256(bytes("Active")), "Project must be Active to complete");
+        require(project.funds > 0, "No funds available for distribution");
+        require(project.funds <= address(this).balance, "Contract does not have enough funds");
+
+        uint totalAssigned = project.assignedTo.length;
+        require(totalAssigned > 0, "No students to distribute funds to");
         
         project.status = "Completed";
-        uint amountPerStudent = project.funds / project.assignedTo.length;
+        uint amountPerStudent = project.funds / totalAssigned;
         for (uint i = 0; i < project.assignedTo.length; i++) {
             payable(project.assignedTo[i]).transfer(amountPerStudent);
             emit FundsDistributed(_projectId, amountPerStudent, project.assignedTo[i]);

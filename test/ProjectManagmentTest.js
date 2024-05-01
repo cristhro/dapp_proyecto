@@ -30,14 +30,21 @@ contract("ProjectManagement", (accounts) => {
 
     it("should distribute funds when a project is completed", async () => {
         const instance = await ProjectManagement.deployed();
-        await instance.assignFundsToProject(0, web3.utils.toWei("3", "ether"), {from: admin});
+        //await instance.assignFundsToProject(0, web3.utils.toWei("3", "ether"), {from: admin});
+
+
+        await instance.assignFundsToProject(0, web3.utils.toWei("3", "ether"), {
+            from: admin,
+            value: web3.utils.toWei("3", "ether")
+        });
 
         //pruebas anteriores dejaron el proyecto como completado y no pasaba la distribucion de fondos se
         //agrega manualmente el estatus Active antes para asegurar (solo para pruebas)
-        //await instance.changeProjectStatus(0, "Active");
+        //await instance.changeProjectStatus(0, "Active", {from: company});
         
         await instance.completeAndDistributeFunds(0, {from: company});
         const balance = await web3.eth.getBalance(student1);
         assert(balance > web3.utils.toWei("0.99", "ether"), "Student should receive their share of the funds");
+        
     });
 });
