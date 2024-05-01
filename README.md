@@ -7,7 +7,26 @@ Diagramas de Casos de Uso
 Contratos desplegados en la Tesnet de Sepolia mediante Dashboard de Truffle
 
 Contrato de Gestion de Proyectos
-https://sepolia.etherscan.io/tx/
+https://sepolia.etherscan.io/tx/0x230eb95ddcd85d995006a4e93ca82e94112816e9990d14d9aab589d28ba0ed6a
+
+
+![final_sepolia1](final_sepolia1.png)
+
+![final_sepolia2](final_sepolia2.png)
+
+![final_sepolia3](final_sepolia3.png)
+
+
+Verificamos el contrato con
+   truffle run verify ProjectManagement@0x7cB8c967E7E28a3a687203B7B62C3c9fB44489cc --network dashboard
+   
+
+![final_sepolia4](final_sepolia4.png)
+
+Contrato Verificado
+https://sepolia.etherscan.io/address/0x7cb8c967e7e28a3a687203b7b62c3c9fb44489cc#code
+
+![final_sepolia5](final_sepolia5.png)
 
 # Grupo 15 - Sprint 2
 
