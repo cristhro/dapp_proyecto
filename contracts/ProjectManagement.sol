@@ -3,16 +3,17 @@ pragma solidity ^0.8.16;
 
 contract ProjectManagement {
 
+
+    enum ProjectStatus { Active, Paused, Completed }
+    enum Role { Admin, Company, Student }
     struct Project {
         uint id;
         string name;
         string description;
-        string status; // Active, Paused, Completed
+        ProjectStatus status; // Active, Paused, Completed
         address[] assignedTo; // Direcciones de los alumnos asignados al proyecto
         uint funds; // Fondos asignados al proyecto
     }
-
-    enum Role { Admin, Company, Student }
     struct User {
         Role role;
         address userAddress;
@@ -39,7 +40,7 @@ contract ProjectManagement {
     function createProject(string memory _name, string memory _description) public {
         require(roles[msg.sender] == Role.Company, "Only companies can create projects");
         //projects.push(Project(nextProjectId, _name, _description, "Active", new address[], 0));
-        projects.push(Project(nextProjectId, _name, _description, "Active", new address[](0), 0));
+        projects.push(Project(nextProjectId, _name, _description, ProjectStatus.Active, new address[](0), 0));
         //projects.push(Project({id:nextProjectId, name:_name, description: _description, status: "Active", assignedTo: new address[](0) , funds: 0}));
 
         projectOwners[nextProjectId] = msg.sender;
@@ -176,14 +177,14 @@ contract ProjectManagement {
         // require(roles[msg.sender] == Role.Company, "Only companies can distribute funds");
         // require(projectOwners[_projectId] == msg.sender, "Only project owner can distribute funds");
         Project storage project = projects[_projectId];
-        require(keccak256(bytes(project.status)) == keccak256(bytes("Active")), "Project must be Active to complete");
+        require(project.status == ProjectStatus.Active, "Project must be Active to complete");
         require(project.funds > 0, "No funds available for distribution");
         require(project.funds <= address(this).balance, "Contract does not have enough funds");
 
         uint totalAssigned = project.assignedTo.length;
         require(totalAssigned > 0, "No students to distribute funds to");
         
-        project.status = "Completed";
+        project.status = ProjectStatus.Completed;
         uint amountPerStudent = project.funds / totalAssigned;
         for (uint i = 0; i < project.assignedTo.length; i++) {
             payable(project.assignedTo[i]).transfer(amountPerStudent);
@@ -196,7 +197,7 @@ contract ProjectManagement {
         return projects[_projectId];
     }
 
-    function changeProjectStatus(uint _projectId, string memory _newStatus) public {
+    function changeProjectStatus(uint _projectId, ProjectStatus  _newStatus) public {
         require(projectOwners[_projectId] == msg.sender, "Only project owner can change the status");
         Project storage project = projects[_projectId];
         project.status = _newStatus;

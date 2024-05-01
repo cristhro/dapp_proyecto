@@ -18,56 +18,46 @@ import { RegisterDonation } from './RegisterDonation';
 //////////////////////////////////////////////////////////////////////////////////|
 //        CONTRACT ADDRESS           &          CONTRACT ABI                      |
 //////////////////////////////////////////////////////////////////////////////////|                                                             |
-const CONTRACT_ADDRESS = require("../contracts/UserManagment.json").networks[1337].address //1337
-// const CONTRACT_ADDRESS = require("../contracts/User.json").networks[11155111].address //sepolia testnet
-
-const CONTRACT_ABI = require("../contracts/UserManagment.json").abi
-const CONTRACT_NAME = require("../contracts/UserManagment.json").contractName
-
+const USER_CONTRACT_ADDRESS = require("../contracts/UserManagment.json").networks[1337].address //1337
+const USER_CONTRACT_ABI = require("../contracts/UserManagment.json").abi
 
 const DONATION_CONTRACT_ADDRESS = require("../contracts/Donation.json").networks[1337].address
 const DONATION_CONTRACT_ABI = require("../contracts/Donation.json").abi
 
 
-
 export default class App extends React.Component {
-  state = { web3Provider: null, accounts: null, networkId: null, contract: null, storageValue: null, userForm: {} };
+  state = {
+    web3Provider: null,
+    accounts: null,
+    networkId: null,
+    userContract: null,
+    storageValue: null,
+    userForm: {}
+  };
 
   componentDidMount = async () => {
     try {
-      // Get network provider and web3 instance.
-      const web3 = await getWeb3();
 
-      // Use web3 to get the user's accounts.
-      const accounts = await web3.eth.getAccounts();
-
-      // Get the network ID
-      const networkId = await web3.eth.net.getId();
+      const web3 = await getWeb3();                   // Get network provider and web3 instance.
+      const accounts = await web3.eth.getAccounts();  // Use web3 to get the user's accounts.
+      const networkId = await web3.eth.net.getId();   // Get the network ID
 
       // Create the Smart Contract instance
-      const contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
-
-
+      const userContract = new web3.eth.Contract(USER_CONTRACT_ABI, USER_CONTRACT_ADDRESS);
       // Create the Smart Contract instance
       const donationContract = new web3.eth.Contract(DONATION_CONTRACT_ABI, DONATION_CONTRACT_ADDRESS);
-      this.setState({ donationContract });
-      this.setState({ donationAmount: 0 });
-      this.setState({ myDonationAmount: 0 });
+      this.setState({ donationContract, donationAmount: 0, myDonationAmount: 0 });
       //const [donationMessage, setDonationMessage] = useState('');
 
 
-      // Set web3, accounts, and contract to the state, and then proceed with an
-      // example of interacting with the contract's methods.
-      this.setState({ web3Provider: web3, accounts, networkId, contract });
+      // Set web3, accounts, and userContract to the state, and then proceed with an
+      // example of interacting with the userContract's methods.
+      this.setState({ web3Provider: web3, accounts, networkId, userContract });
 
-      // Load user information
-      this.getUserInformation();
-
-      // Load donation information
-      this.getDonationInformation();
-
-      // Load my donation information
-      this.getMyDonationInformation();
+      
+      this.getUserInformation();      // Load user information
+      this.getDonationInformation();  // Load donation information
+      this.getMyDonationInformation(); // Load my donation information
 
       // --------- TO LISTEN TO EVENTS AFTER EVERY COMPONENT MOUNT ---------
       this.handleMetamaskEvent();
@@ -76,7 +66,7 @@ export default class App extends React.Component {
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
-        `Failed to load web3, accounts, or contract. Check console for details.`,
+        `Failed to load web3, accounts, or userContract. Check console for details.`,
       );
       console.error(error);
     }
@@ -85,14 +75,15 @@ export default class App extends React.Component {
   // --------- METAMASK EVENTS ---------
   handleMetamaskEvent = async () => {
     window.ethereum.on('accountsChanged', function (accounts) {
+      console.log('🚀 ~ App ~ accounts:', accounts)
       // Time to reload your interface with accounts[0]!
-      alert("Incoming event from Metamask: Account changed 🦊")
+      alert("Incoming event from Metamask: Account changed 🦊" + accounts[0])
       window.location.reload()
     })
 
     window.ethereum.on('chainChanged', function (networkId) {
       // Time to reload your interface with the new networkId
-      alert("Incoming event from Metamask: Network changed 🦊")
+      alert("Incoming event from Metamask: Network changed 🦊" + networkId)
       window.location.reload()
     })
   }
@@ -140,18 +131,18 @@ export default class App extends React.Component {
 
   // ------------ GET USER INFORMATION FUNCTION ------------
   getUserInformation = async () => {
-    const { accounts, contract } = this.state;
+    const { accounts, userContract } = this.state;
 
     // Get the user information
-    const response = await contract.methods.getUser().call({ from: accounts[0] });
+    const response = await userContract.methods.getUser().call({ from: accounts[0] });
     this.setState({ userInfo: response })
   }
 
   // ------------ REGISTER USER FUNCTION ------------
   registerUser = async (userForm) => {
-    const { accounts, contract } = this.state;
-    const res = await contract.methods.registerUser(userForm.name, userForm.email, userForm.tipoUsuario, userForm.imageURI).send({ from: accounts[0] })
-    const response = await contract.methods.getUser().call({ from: accounts[0] });
+    const { accounts, userContract } = this.state;
+    const res = await userContract.methods.registerUser(userForm.name, userForm.email, userForm.tipoUsuario, userForm.imageURI).send({ from: accounts[0] })
+    const response = await userContract.methods.getUser().call({ from: accounts[0] });
     this.setState({ userInfo: response })
   };
 
