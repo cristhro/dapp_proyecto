@@ -28,6 +28,7 @@ contract ProjectManagement {
     mapping(address => Role) public roles;
     mapping(uint => address) public projectOwners;
     mapping(address => uint[]) public studentProjects;
+    mapping(address => uint[]) public companyProjects;
     mapping(address => User) private users;             // Mapping para almacenar usuarios por ID
     // Evento para notificar el registro de un nuevo usuario
     event UserRegistered(string name, string email, Role role);
@@ -210,8 +211,12 @@ contract ProjectManagement {
     function getProject(uint _projectId) public view returns (Project memory) {
         return projects[_projectId];
     }
-    function getProjects(uint _projectId) public view returns (Project memory) {
-        return projects[_projectId];
+    function getCompanyProjects() public view returns (Project memory) {
+         for (uint i = 0; i < companyProjects[msg.sender].length; i++) {
+            Project storage project = projects[companyProjects[_company][i]];
+           
+        }
+        return companyProjects
     }
 
     function changeProjectStatus(uint _projectId, ProjectStatus  _newStatus) public {
