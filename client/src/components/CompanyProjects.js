@@ -1,4 +1,5 @@
 import React from "react";
+import { getStatusFormatted } from "../helpers/projectStatus";
 
 
 export const CompanyProjects = ({ companyProjects, selectedProject, onSelectProject }) => {
@@ -24,7 +25,7 @@ export const CompanyProjects = ({ companyProjects, selectedProject, onSelectProj
                     >
                         <td>{item.id}</td>
                         <td>{item.name}</td>
-                        <td>{item.status}</td>
+                        <td>{getStatusFormatted(item.status)}</td>
                     </tr>
                 ))}
 

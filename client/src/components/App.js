@@ -8,7 +8,7 @@ import "./App.css";
 
 // Import helper functions
 import getWeb3 from "../helpers/getWeb3";
-import { isAdmin, isCompany, isStudent, getRoleFormatted} from "../helpers/userRoleHelpers";
+import { isAdmin, isCompany, isStudent, getRoleFormatted} from "../helpers/userRole";
 
 // Import React components
 import { RegisterUser } from './RegisterUser';
@@ -63,6 +63,7 @@ export default class App extends React.Component {
         donationAmount: 0,
         myDonationAmount: 0,
         projectsInfo: [],
+        projectUsersInfo: [],
         usersInfo: [],
         selectedProject: null
       });
@@ -74,9 +75,9 @@ export default class App extends React.Component {
       this.getProjects(); // Load projects
       this.getStudentProjects(); // Load users
       this.getUsers(); // Load users
-      this.getProjectUsers(); // Load project users
       this.getCompanyProjects(); // Load company projects
       this.getCompanyUsers(); // Load company users
+      this.getUnassignedStudents(); // Load Unnassigned students
 
       // --------- TO LISTEN TO EVENTS AFTER EVERY COMPONENT MOUNT ---------
       this.handleMetamaskEvent();
@@ -106,6 +107,39 @@ export default class App extends React.Component {
       window.location.reload()
     })
   }
+  // GET DATA - COMPANY
+  // 🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵🔵
+  handleRegisterProject = async (projectForm) => {
+    const { accounts, projectContract } = this.state;
+    const res = await projectContract.methods.createProject(projectForm.name, projectForm.description).send({ from: accounts[0] })
+    this.getCompanyProjects();
+  };
+  handleAssignUserToProject = async (user) => {
+    console.log('🚀 ~ App ~ handleAssignUserToProject= ~ user:', user)
+    const { accounts, projectContract, selectedProject } = this.state;
+    console.log('🚀 ~ App ~ handleAssignUserToProject= ~ selectedProject:', selectedProject)
+    const res = await projectContract.methods.assignStudentToProject(selectedProject.id, user.userAddress).send({ from: accounts[0] })
+    this.getUnassignedStudents();
+    this.getProjectUsers(project); // Load project users
+  };
+  getCompanyProjects = async () => {
+    const { accounts, projectContract } = this.state;
+    this.setState({ companyProjectsInfo: [] })
+
+    // Get the user information
+    const companyProjects = await projectContract.methods.getCompanyProjects().call({ from: accounts[0] });
+    this.setState({ companyProjectsInfo: companyProjects })
+  }
+
+  getUnassignedStudents = async () => {
+    const { accounts, projectContract } = this.state;
+    this.setState({ companyProjectsInfo: [] })
+
+    // Get the user information
+    const students = await projectContract.methods.getUnassignedStudents().call({ from: accounts[0] });
+    this.setState({ unassignedStudentsInfo: students })
+  }
+
 
   // ------------ CALL GET INFORMATION FUNCTION ------------
   getDonationInformation = async () => {
@@ -174,29 +208,12 @@ export default class App extends React.Component {
     ]
     this.setState({ projectsInfo: projects })
   }
-  getCompanyProjects = async () => {
-    //const { accounts, projectContract } = this.state;
 
-    // Get the user information
-    // const response = await projectContract.methods.getUser().call({ from: accounts[0] });
-    const companyProjects = [
-      { id: '1', name: 'Test 1', description: 'Description 1', status: 'Active', amount:100 },
-      { id: '2', name: 'Test 2', description: 'Description 2', status: 'Pause', amount:200 },
-      { id: '3', name: 'Test 3', description: 'Description 3', status: 'Active', amount:300 },
-      { id: '4', name: 'Test 4', description: 'Description 4', status: 'Complete', amount:400 },
-      { id: '5', name: 'Test 5', description: 'Description 5', status: 'Complete', amount:500 },
-      { id: '6', name: 'Test 6', description: 'Description 6', status: 'Complete', amount:600 },
-      { id: '7', name: 'Test 7', description: 'Description 7', status: 'Pause', amount:700 },
-      { id: '8', name: 'Test 8', description: 'Description 8', status: 'Pause', amount:800 },
-      { id: '9', name: 'Test 9', description: 'Description 9', status: 'Pause', amount:900 },
-    ]
-    this.setState({ companyProjectsInfo: companyProjects })
-  }
   getStudentProjects = async () => {
-    //const { accounts, projectContract } = this.state;
+    const { accounts, projectContract } = this.state;
 
     // Get the user information
-    // const response = await projectContract.methods.getUser().call({ from: accounts[0] });
+    const response = await projectContract.methods.getUser().call({ from: accounts[0] });
     const studentProjects = [
       { id: '1', name: 'Project Test 1', description: 'Description 1' },
       { id: '2', name: 'Project Test 2', description: 'Description 2' },
@@ -222,22 +239,13 @@ export default class App extends React.Component {
     ]
     this.setState({ usersInfo: users })
   }
-  getProjectUsers = async () => {
-    //const { accounts, projectContract } = this.state;
+  getProjectUsers = async (project) => {
+    const { accounts, projectContract } = this.state;
 
     // Get the user information
-    // const response = await projectContract.methods.getUser().call({ from: accounts[0] });
-    const projectUsers = [
-      { name: 'Project Test 1', role: 1 },
-      { name: 'Project Test 2', role: 1 },
-      { name: 'Project Test 3', role: 1 },
-      { name: 'Project Test 4', role: 2 },
-      { name: 'Project Test 5', role: 2 },
-      { name: 'Project Test 6', role: 2 },
-      { name: 'Project Test 7', role: 3 },
-      { name: 'Project Test 8', role: 3 },
-      { name: 'Project Test 9', role: 3 },
-    ]
+    const projectUsers = await projectContract.methods.getProjectStudents(project.id).call({ from: accounts[0] });
+    console.log('🚀 ~ App ~ getProjectUsers= ~ response:', projectUsers)
+
     this.setState({ projectUsersInfo: projectUsers })
   }
   getCompanyUsers = async () => {
@@ -261,17 +269,13 @@ export default class App extends React.Component {
     const response = await projectContract.methods.getUser().call({ from: accounts[0] });
     this.setState({ userInfo: response })
   };
-  handleRegisterProject = async (projectForm) => {
-    const { accounts, projectContract } = this.state;
-    const res = await projectContract.methods.createProject(projectForm.name, projectForm.description).send({ from: accounts[0] })
 
-    this.setState({ projectsInfo: [projectToAdd, ...this.state.projectsInfo] })
-  };
   handleSelectProject = async (project) => {
     if (!!this.state.selectedProject && project.id === this.state.selectedProject.id) {
       this.setState({ selectedProject: null })
     } else {
       this.setState({ selectedProject: project })
+      this.getProjectUsers(project); // Load project users
     }
   };
 
@@ -373,7 +377,7 @@ export default class App extends React.Component {
 
                 {isCompany(this.state.userInfo.role) && this.state.selectedProject && (
                   <div className="card">
-                    <ProjectInformation className="card" project={this.state.selectedProject} projectUsers={this.state.projectUsersInfo} />
+                    <ProjectInformation className="card" project={this.state.selectedProject} projectUsers={this.state.projectUsersInfo} unassignedStudents={this.state.unassignedStudentsInfo} onAssignUser={this.handleAssignUserToProject} />
                   </div>
                 )}
 

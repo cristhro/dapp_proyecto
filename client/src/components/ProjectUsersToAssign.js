@@ -1,7 +1,8 @@
 import React from "react";
+import { getRoleFormatted } from "../helpers/userRole";
 
 
-export const ProjectUsersToAssign = ({ users, project }) => {
+export const ProjectUsersToAssign = ({ users, onSelectUser }) => {
     return (
         <div className="list-information">
             <h2>Project Users to Assign</h2>
@@ -12,30 +13,14 @@ export const ProjectUsersToAssign = ({ users, project }) => {
                 </tr>
 
                 {users.map(item => (
-                    <tr key={item.id}>
+                    <tr key={item.id} >
                         <td>{item.name}</td>
-                        <td>{parseTipoUsuario(item.role)}</td>
-                        <td> <button type="submit" >Assing to a  project</button></td>
+                        <td>{getRoleFormatted(item.role)}</td>
+                        <td>  <button onClick={() => onSelectUser(item)} >Assing to a  project</button></td>
                     </tr>
                 ))}
 
             </table>
         </div>
     );
-
-    function parseTipoUsuario(role) {
-        console.log('🚀 ~ parseTipoUsuario ~ role:', role)
-        switch (+role) {
-            case 1:
-                return "Alumno";
-            case 2:
-                return "Empresa";
-            case 3:
-                return "Instructor";
-            case 4:
-                return "Administrador";
-            default:
-                return "Unknown";
-        }
-    }
 };

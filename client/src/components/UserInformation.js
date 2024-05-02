@@ -1,5 +1,5 @@
 import React from "react";
-import { getRoleFormatted } from "../helpers/userRoleHelpers";
+import { getRoleFormatted } from "../helpers/userRole";
 
 
 export const UserInformation = ({ user, account }) => {

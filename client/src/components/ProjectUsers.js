@@ -1,7 +1,10 @@
 import React from "react";
+import { getRoleFormatted } from "../helpers/userRole";
 
 
-export const ProjectUsers = ({ users }) => {
+export const ProjectUsers = ({ users, unassignedStudents }) => {
+    console.log('🚀 ~ ProjectUsers ~ unassignedStudents:', unassignedStudents)
+    console.log('🚀 ~ ProjectUsers ~ users:', users)
     return (
         <div className="list-information">
             <h2>Project Users</h2>
@@ -14,27 +17,11 @@ export const ProjectUsers = ({ users }) => {
                 {users.map(item => (
                     <tr key={item.id}>
                         <td>{item.name}</td>
-                        <td>{parseTipoUsuario(item.role)}</td>
+                        <td>{getRoleFormatted(item.role)}</td>
                     </tr>
                 ))}
 
             </table>
         </div>
     );
-
-    function parseTipoUsuario(role) {
-        console.log('🚀 ~ parseTipoUsuario ~ role:', role)
-        switch (+role) {
-            case 1:
-                return "Alumno";
-            case 2:
-                return "Empresa";
-            case 3:
-                return "Instructor";
-            case 4:
-                return "Administrador";
-            default:
-                return "Unknown";
-        }
-    }
 };
