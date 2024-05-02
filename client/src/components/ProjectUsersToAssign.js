@@ -14,7 +14,7 @@ export const ProjectUsersToAssign = ({ users, project }) => {
                 {users.map(item => (
                     <tr key={item.id}>
                         <td>{item.name}</td>
-                        <td>{parseTipoUsuario(item.tipoUsuario)}</td>
+                        <td>{parseTipoUsuario(item.role)}</td>
                         <td> <button type="submit" >Assing to a  project</button></td>
                     </tr>
                 ))}
@@ -23,9 +23,9 @@ export const ProjectUsersToAssign = ({ users, project }) => {
         </div>
     );
 
-    function parseTipoUsuario(tipoUsuario) {
-        console.log('🚀 ~ parseTipoUsuario ~ tipoUsuario:', tipoUsuario)
-        switch (+tipoUsuario) {
+    function parseTipoUsuario(role) {
+        console.log('🚀 ~ parseTipoUsuario ~ role:', role)
+        switch (+role) {
             case 1:
                 return "Alumno";
             case 2:

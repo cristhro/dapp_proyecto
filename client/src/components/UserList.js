@@ -16,7 +16,7 @@ export const UserList = ({ users, project }) => {
                 {users.map(item => (
                     <tr key={item.id}>
                         <td>{item.name}</td>
-                        <td>{item.tipoUsuario}</td>
+                        <td>{item.role}</td>
                         <td>{ }</td>
                     </tr>
                 ))}

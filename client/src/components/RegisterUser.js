@@ -34,7 +34,7 @@ export const RegisterUser = ({ onRegisterUser }) => {
                     <AnimatedLabel text="Email" />
                 </div>
                 <div className="wave-group">
-                    <select className="input" onChange={(e) => setValue({ ...value, tipoUsuario: parseInt(e.target.value) || '' })}>
+                    <select className="input" onChange={(e) => setValue({ ...value, role: parseInt(e.target.value) || '' })}>
                         <option value="">Select user type</option>
                         <option value="1">Alumno</option>
                         <option value="2">Empresa</option>

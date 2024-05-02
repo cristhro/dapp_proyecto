@@ -2,8 +2,6 @@
 pragma solidity ^0.8.16;
 
 contract ProjectManagement {
-
-
     enum ProjectStatus { Active, Paused, Completed }
     enum Role { Admin, Company, Student }
     struct Project {
@@ -15,28 +13,50 @@ contract ProjectManagement {
         uint funds; // Fondos asignados al proyecto
     }
     struct User {
-        Role role;
         address userAddress;
+        string name;
+        string email;
+        Role role; // 1: Alumno, 2: Empresa, 3: Instructor, 4: Administrador
+        string imageURI;
+        bool isActive;
+        bool exists;
     }
+    
 
     Project[] public projects;
     uint public nextProjectId;
     mapping(address => Role) public roles;
     mapping(uint => address) public projectOwners;
     mapping(address => uint[]) public studentProjects;
-
+    mapping(address => User) private users;             // Mapping para almacenar usuarios por ID
+    // Evento para notificar el registro de un nuevo usuario
+    event UserRegistered(string name, string email, Role role);
     event FundsAssigned(uint projectId, uint amount);
     event FundsDistributed(uint projectId, uint amount, address student);
 
     constructor() {
         roles[msg.sender] = Role.Admin; // El creador del contrato es el administrador
     }
-
+    // USER MANAGEMENT
+    // ----------------
     function setUserRole(address _user, Role _role) public {
         require(roles[msg.sender] == Role.Admin, "Only admin can set roles");
         roles[_user] = _role;
     }
 
+    function registerUser( string memory _name, string memory _email, Role _role, string memory _imageURI) public {
+        require(!users[msg.sender].exists, "User already registered.");
+        users[msg.sender] = User(msg.sender, _name, _email, _role, _imageURI, false, true);
+        emit UserRegistered(_name, _email, _role );
+    }
+
+    // Función para obtener los datos de un usuario
+    function getUser() public view returns (User memory) {
+        require(users[msg.sender].exists, "El usuario no existe");
+        return users[msg.sender];
+    }
+
+    // ----------------
     function createProject(string memory _name, string memory _description) public {
         require(roles[msg.sender] == Role.Company, "Only companies can create projects");
         //projects.push(Project(nextProjectId, _name, _description, "Active", new address[], 0));
@@ -47,13 +67,7 @@ contract ProjectManagement {
         nextProjectId++;
     }
 
-    // function assignFundsToProjectOld(uint _projectId, uint _amount) public {
-    //     require(roles[msg.sender] == Role.Admin, "Only admin can assign funds");
-    //     require(_amount > 0, "Amount must be greater than 0");
-    //     Project storage project = projects[_projectId];
-    //     project.funds += _amount;
-    //     emit FundsAssigned(_projectId, _amount);
-    // }
+   
 
     // Hace que la función sea payable para aceptar fondos de Ether
     function assignFundsToProject(uint _projectId, uint _amount) public payable {
@@ -194,6 +208,9 @@ contract ProjectManagement {
     }
 
     function getProject(uint _projectId) public view returns (Project memory) {
+        return projects[_projectId];
+    }
+    function getProjects(uint _projectId) public view returns (Project memory) {
         return projects[_projectId];
     }
 

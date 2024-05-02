@@ -1,4 +1,5 @@
 import React from "react";
+import { getRoleFormatted } from "../helpers/userRoleHelpers";
 
 
 export const UserInformation = ({ user, account }) => {
@@ -13,25 +14,9 @@ export const UserInformation = ({ user, account }) => {
             {/* User information */}
             <div className="User-information-text">
                 <p><b>User Name:</b> {user.name}</p>
-                <p><b>User Type:</b> {parseTipoUsuario(user.tipoUsuario)}</p> 
+                <p><b>User Type:</b> {getRoleFormatted(user.role)}</p> 
                 <p><b>Amount: </b>12 ETH</p>
             </div>
         </div>
     );
-
-    function parseTipoUsuario(tipoUsuario) {
-        console.log('🚀 ~ parseTipoUsuario ~ tipoUsuario:', tipoUsuario)
-        switch (+tipoUsuario) {
-            case 1:
-                return "Alumno";
-            case 2:
-                return "Empresa";
-            case 3:
-                return "Instructor";
-            case 4:
-                return "Administrador";
-            default:
-                return "Unknown";
-        }
-    }
 };

@@ -16,7 +16,7 @@ export const CompanyUsers = ({ companyUsers, project }) => {
                 {companyUsers.map(item => (
                     <tr key={item.id}>
                         <td>{item.name}</td>
-                        <td>{item.tipoUsuario}</td>
+                        <td>{item.role}</td>
                         <td>{ }</td>
                     </tr>
                 ))}

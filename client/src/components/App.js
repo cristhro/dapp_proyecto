@@ -8,6 +8,7 @@ import "./App.css";
 
 // Import helper functions
 import getWeb3 from "../helpers/getWeb3";
+import { isAdmin, isCompany, isStudent, getRoleFormatted} from "../helpers/userRoleHelpers";
 
 // Import React components
 import { RegisterUser } from './RegisterUser';
@@ -26,8 +27,8 @@ import { AssignAmountToProject } from "./AssignAmountToProject";
 //////////////////////////////////////////////////////////////////////////////////|
 //        CONTRACT ADDRESS           &          CONTRACT ABI                      |
 //////////////////////////////////////////////////////////////////////////////////|                                                             |
-const USER_CONTRACT_ADDRESS = require("../contracts/UserManagment.json").networks[1337].address //1337
-const USER_CONTRACT_ABI = require("../contracts/UserManagment.json").abi
+const USER_CONTRACT_ADDRESS = require("../contracts/ProjectManagement.json").networks[1337].address //1337
+const USER_CONTRACT_ABI = require("../contracts/ProjectManagement.json").abi
 
 const DONATION_CONTRACT_ADDRESS = require("../contracts/Donation.json").networks[1337].address
 const DONATION_CONTRACT_ABI = require("../contracts/Donation.json").abi
@@ -38,7 +39,7 @@ export default class App extends React.Component {
     web3Provider: null,
     accounts: null,
     networkId: null,
-    userContract: null,
+    projectContract: null,
     storageValue: null,
     userForm: {}
   };
@@ -51,14 +52,14 @@ export default class App extends React.Component {
       const networkId = await web3.eth.net.getId();   // Get the network ID
 
 
-      const userContract = new web3.eth.Contract(USER_CONTRACT_ABI, USER_CONTRACT_ADDRESS);                 // Create the Smart Contract instance
+      const projectContract = new web3.eth.Contract(USER_CONTRACT_ABI, USER_CONTRACT_ADDRESS);                 // Create the Smart Contract instance
       const donationContract = new web3.eth.Contract(DONATION_CONTRACT_ABI, DONATION_CONTRACT_ADDRESS);     // Create the Smart Contract instance
 
 
-      // Set web3, accounts, and userContract to the state, and then proceed with an
-      // example of interacting with the userContract's methods.
+      // Set web3, accounts, and projectContract to the state, and then proceed with an
+      // example of interacting with the projectContract's methods.
       this.setState({
-        web3Provider: web3, accounts, networkId, userContract, donationContract,
+        web3Provider: web3, accounts, networkId, projectContract, donationContract,
         donationAmount: 0,
         myDonationAmount: 0,
         projectsInfo: [],
@@ -84,7 +85,7 @@ export default class App extends React.Component {
     } catch (error) {
       // Catch any errors for any of the above operations.
       alert(
-        `Failed to load web3, accounts, or userContract. Check console for details.`,
+        `Failed to load web3, accounts, or projectContract. Check console for details.`,
       );
       console.error(error);
     }
@@ -149,17 +150,17 @@ export default class App extends React.Component {
 
   // ------------ GET  INFORMATION FUNCTION ------------
   getUserInformation = async () => {
-    const { accounts, userContract } = this.state;
+    const { accounts, projectContract } = this.state;
 
     // Get the user information
-    const response = await userContract.methods.getUser().call({ from: accounts[0] });
+    const response = await projectContract.methods.getUser().call({ from: accounts[0] });
     this.setState({ userInfo: response })
   }
   getProjects = async () => {
-    //const { accounts, userContract } = this.state;
+    //const { accounts, projectContract } = this.state;
 
     // Get the user information
-    // const response = await userContract.methods.getUser().call({ from: accounts[0] });
+    // const response = await projectContract.methods.getUser().call({ from: accounts[0] });
     const projects = [
       { id: '1', name: 'Test 1', description: 'Description 1', amount: 1},
       { id: '2', name: 'Test 2', description: 'Description 2', amount: 12},
@@ -174,10 +175,10 @@ export default class App extends React.Component {
     this.setState({ projectsInfo: projects })
   }
   getCompanyProjects = async () => {
-    //const { accounts, userContract } = this.state;
+    //const { accounts, projectContract } = this.state;
 
     // Get the user information
-    // const response = await userContract.methods.getUser().call({ from: accounts[0] });
+    // const response = await projectContract.methods.getUser().call({ from: accounts[0] });
     const companyProjects = [
       { id: '1', name: 'Test 1', description: 'Description 1', status: 'Active', amount:100 },
       { id: '2', name: 'Test 2', description: 'Description 2', status: 'Pause', amount:200 },
@@ -192,10 +193,10 @@ export default class App extends React.Component {
     this.setState({ companyProjectsInfo: companyProjects })
   }
   getStudentProjects = async () => {
-    //const { accounts, userContract } = this.state;
+    //const { accounts, projectContract } = this.state;
 
     // Get the user information
-    // const response = await userContract.methods.getUser().call({ from: accounts[0] });
+    // const response = await projectContract.methods.getUser().call({ from: accounts[0] });
     const studentProjects = [
       { id: '1', name: 'Project Test 1', description: 'Description 1' },
       { id: '2', name: 'Project Test 2', description: 'Description 2' },
@@ -204,68 +205,65 @@ export default class App extends React.Component {
     this.setState({ studentProjectsInfo: studentProjects })
   }
   getUsers = async () => {
-    //const { accounts, userContract } = this.state;
+    //const { accounts, projectContract } = this.state;
 
     // Get the user information
-    // const response = await userContract.methods.getUser().call({ from: accounts[0] });
+    // const response = await projectContract.methods.getUser().call({ from: accounts[0] });
     const users = [
-      { name: 'User Test 1', tipoUsuario: 1 },
-      { name: 'User Test 2', tipoUsuario: 1 },
-      { name: 'User Test 3', tipoUsuario: 1 },
-      { name: 'User Test 4', tipoUsuario: 2 },
-      { name: 'User Test 5', tipoUsuario: 2 },
-      { name: 'User Test 6', tipoUsuario: 2 },
-      { name: 'User Test 7', tipoUsuario: 3 },
-      { name: 'User Test 8', tipoUsuario: 3 },
-      { name: 'User Test 9', tipoUsuario: 3 },
+      { name: 'User Test 1', role: 1 },
+      { name: 'User Test 2', role: 1 },
+      { name: 'User Test 3', role: 1 },
+      { name: 'User Test 4', role: 2 },
+      { name: 'User Test 5', role: 2 },
+      { name: 'User Test 6', role: 2 },
+      { name: 'User Test 7', role: 3 },
+      { name: 'User Test 8', role: 3 },
+      { name: 'User Test 9', role: 3 },
     ]
     this.setState({ usersInfo: users })
   }
   getProjectUsers = async () => {
-    //const { accounts, userContract } = this.state;
+    //const { accounts, projectContract } = this.state;
 
     // Get the user information
-    // const response = await userContract.methods.getUser().call({ from: accounts[0] });
+    // const response = await projectContract.methods.getUser().call({ from: accounts[0] });
     const projectUsers = [
-      { name: 'Project Test 1', tipoUsuario: 1 },
-      { name: 'Project Test 2', tipoUsuario: 1 },
-      { name: 'Project Test 3', tipoUsuario: 1 },
-      { name: 'Project Test 4', tipoUsuario: 2 },
-      { name: 'Project Test 5', tipoUsuario: 2 },
-      { name: 'Project Test 6', tipoUsuario: 2 },
-      { name: 'Project Test 7', tipoUsuario: 3 },
-      { name: 'Project Test 8', tipoUsuario: 3 },
-      { name: 'Project Test 9', tipoUsuario: 3 },
+      { name: 'Project Test 1', role: 1 },
+      { name: 'Project Test 2', role: 1 },
+      { name: 'Project Test 3', role: 1 },
+      { name: 'Project Test 4', role: 2 },
+      { name: 'Project Test 5', role: 2 },
+      { name: 'Project Test 6', role: 2 },
+      { name: 'Project Test 7', role: 3 },
+      { name: 'Project Test 8', role: 3 },
+      { name: 'Project Test 9', role: 3 },
     ]
     this.setState({ projectUsersInfo: projectUsers })
   }
   getCompanyUsers = async () => {
-    //const { accounts, userContract } = this.state;
+    //const { accounts, projectContract } = this.state;
 
     // Get the user information
-    // const response = await userContract.methods.getUser().call({ from: accounts[0] });
+    // const response = await projectContract.methods.getUser().call({ from: accounts[0] });
     const companyUsers = [
-      { name: 'User Test 1', tipoUsuario: 1 },
-      { name: 'User Test 2', tipoUsuario: 1 },
-      { name: 'User Test 3', tipoUsuario: 1 },
-      { name: 'User Test 4', tipoUsuario: 2 },
+      { name: 'User Test 1', role: 1 },
+      { name: 'User Test 2', role: 1 },
+      { name: 'User Test 3', role: 1 },
+      { name: 'User Test 4', role: 2 },
     ]
     this.setState({ companyUsersInfo: companyUsers })
   }
 
   // ------------  Handlers FUNCTION ------------
   handleRegisterUser = async (userForm) => {
-    const { accounts, userContract } = this.state;
-    const res = await userContract.methods.registerUser(userForm.name, userForm.email, userForm.tipoUsuario, userForm.imageURI).send({ from: accounts[0] })
-    const response = await userContract.methods.getUser().call({ from: accounts[0] });
+    const { accounts, projectContract } = this.state;
+    const res = await projectContract.methods.registerUser(userForm.name, userForm.email, userForm.role, userForm.imageURI).send({ from: accounts[0] })
+    const response = await projectContract.methods.getUser().call({ from: accounts[0] });
     this.setState({ userInfo: response })
   };
   handleRegisterProject = async (projectForm) => {
-    console.log("🚀 ~ App ~ registerProject= ~ projectForm:", projectForm)
-    const projectToAdd = {
-      ...projectForm,
-      id: this.state.projectsInfo.length + 1
-    }
+    const { accounts, projectContract } = this.state;
+    const res = await projectContract.methods.createProject(projectForm.name, projectForm.description).send({ from: accounts[0] })
 
     this.setState({ projectsInfo: [projectToAdd, ...this.state.projectsInfo] })
   };
@@ -280,9 +278,9 @@ export default class App extends React.Component {
 
 
 
-  parseTipoUsuario(tipoUsuario) {
-    console.log('🚀 ~ parseTipoUsuario ~ tipoUsuario:', tipoUsuario)
-    switch (+tipoUsuario) {
+  parseTipoUsuario(role) {
+    console.log('🚀 ~ parseTipoUsuario ~ role:', role)
+    switch (+role) {
       case 1:
         return "Alumno";
       case 2:
@@ -351,50 +349,41 @@ export default class App extends React.Component {
                 </div> */}
               </div>
               <div className="User-custom-actions">
-                {/* Alumno */}
-                {+this.state.userInfo.tipoUsuario === 1 && (
+                {/* Administrador */}
+                {isAdmin(this.state.userInfo.role) && (
                   <div className="card">
-                    <StudentProjects className="card" studentProjects={this.state.studentProjectsInfo} onSelectProject={this.handleSelectProject} selectedProject={this.state.selectedProject} />
-                    <h2>Acciones para el Alumno</h2>
-                    <p>Proximamente...</p>
-                    <button disabled >Enroll in course</button>
+                    {/* <RegisterProject className="card" onRegisterProject={this.handleRegisterProject} /> */}
+                    <ProjectList className="card" projects={this.state.projectsInfo} onSelectProject={this.handleSelectProject} selectedProject={this.state.selectedProject} />
+                  </div>
+                )}
+                {isAdmin(this.state.userInfo.role) && (
+                  <div className="card">
+                    {this.state.selectedProject && (
+                      <AssignAmountToProject className="card" onRegisterDonation={this.handleSelectProject} project={this.state.selectedProject} />
+                    )}
                   </div>
                 )}
                 {/* Empresa */}
-                {+this.state.userInfo.tipoUsuario === 2 && (
+                {isCompany(this.state.userInfo.role) && (
                   <div className="card">
                     <RegisterProject className="card" onRegisterProject={this.handleRegisterProject} />
                     <CompanyProjects className="card" companyProjects={this.state.companyProjectsInfo} onSelectProject={this.handleSelectProject} selectedProject={this.state.selectedProject} />
                   </div>
                 )}
 
-                {+this.state.userInfo.tipoUsuario === 2 && this.state.selectedProject && (
+                {isCompany(this.state.userInfo.role) && this.state.selectedProject && (
                   <div className="card">
                     <ProjectInformation className="card" project={this.state.selectedProject} projectUsers={this.state.projectUsersInfo} />
                   </div>
                 )}
-                {/* <CompanyUsers className="card" companyUsers={this.state.companyUsersInfo} project={this.state.selectedProject} /> */}
-                {/* Instructor */}
-                {+this.state.userInfo.tipoUsuario === 3 && (
+
+                {/* Alumno */}
+                {isStudent(this.state.userInfo.role) && (
                   <div className="card">
-                    <h2>Acciones para el Instructor</h2>
+                    <StudentProjects className="card" studentProjects={this.state.studentProjectsInfo} onSelectProject={this.handleSelectProject} selectedProject={this.state.selectedProject} />
+                    <h2>Acciones para el Alumno</h2>
                     <p>Proximamente...</p>
-                    <button disabled>Añadir notas</button>
-                    <button disabled>Listar estudiantes</button>
-                  </div>
-                )}
-                {/* Administrador */}
-                {+this.state.userInfo.tipoUsuario === 4 && (
-                  <div className="card">
-                    {/* <RegisterProject className="card" onRegisterProject={this.handleRegisterProject} /> */}
-                    <ProjectList className="card" projects={this.state.projectsInfo} onSelectProject={this.handleSelectProject} selectedProject={this.state.selectedProject} />
-                  </div>
-                )}
-                {+this.state.userInfo.tipoUsuario === 4 && (
-                  <div className="card">
-                    {this.state.selectedProject && (
-                      <AssignAmountToProject className="card" onRegisterDonation={this.handleSelectProject} project={this.state.selectedProject} /> 
-                    )}
+                    <button disabled >Enroll in course</button>
                   </div>
                 )}
               </div>
